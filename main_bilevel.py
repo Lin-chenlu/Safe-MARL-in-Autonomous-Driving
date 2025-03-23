@@ -11,17 +11,14 @@ if __name__ == '__main__':
     args = get_args()
 
     # set train params
-    # args.file_path = "./merge_env_result/exp1"
-    # args.file_path = "./roundabout_env_result/exp1"
-    # args.file_path = "./intersection_env_result/exp1"
-    # args.file_path = "./racetrack_env_result/exp1"
-
-    seed = [0,1,2]
-
-    for i in seed:
-        args.seed = i
-        args.save_dir = args.file_path + "/seed_" + str(args.seed)
-
+    # 循环遍历不同的环境路径
+    env_paths = ["./merge_env_result/exp1", "./roundabout_env_result/exp1", "./intersection_env_result/exp1", "./racetrack_env_result/exp1"]
+    for path in env_paths:
+        seed = [0,1,2]
+        for i in seed:
+            args.seed = i
+            args.save_dir = args.file_path + "/seed_" + str(args.seed)
+        
         if not os.path.exists(args.save_dir):
             os.mkdir(args.save_dir)
         with open(args.file_path+'/config.json','r') as f:
@@ -29,9 +26,9 @@ if __name__ == '__main__':
         
         # set env
         env, eval_env, args = make_highway_env(args)
-
+        
         np.random.seed(args.seed)
-
+        
         # choose action type and algorithm
         if args.action_type == "continuous":
             # unconstrained stackelberg maddpg
@@ -43,14 +40,14 @@ if __name__ == '__main__':
         elif args.action_type == "discrete":
             # constrained or unconstrained(by setting extreme high cost threshold) stackelberg Q learning
             runner = Runner_Stochastic(args, env, eval_env)
-
+        
         # train or evaluate
         if args.evaluate:
             returns = runner.evaluate()
             print('Average returns is', returns)
         else:
             runner.run()
-
+        
         # record video
         if args.record_video:
             runner.record_video()

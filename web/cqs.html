@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于多智能体强化学习的自动驾驶决策方法的设计与实现</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+
+        }
+
+        button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .input-group textarea {
+            width: 70%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+            /* 居中媒体容器的父容器 */
+    .media-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0;
+    }
+
+    /* 媒体容器样式 */
+    #media-container {
+        width: 600px;
+        height: 400px;
+        border: 2px solid black;
+        border-radius: 5px;
+    }
+
+    /* 图片和视频样式 */
+    #picture, video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 保持比例，填充容器 */
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            基于多智能体强化学习的自动驾驶决策方法的
+            <span style="display: block;">设计与实现</span>
+        </h1>
+        <div class="input-group">
+            <label>选择仿真环境</label></p>
+            <button data-env="highway_env_result" onclick="handleEnvClick(this)">单向直行道</button>
+            <button data-env="two_way_env_result" onclick="handleEnvClick(this)">双向直行道</button>
+            <button data-env="intersection_env_result" onclick="handleEnvClick(this)">十字路口</button>
+            </p>
+            <button data-env="u_turn_env_result" onclick="handleEnvClick(this)">U形道路</button>
+            <button data-env="roundabout_env_result" onclick="handleEnvClick(this)">环岛道路</button>
+            <button data-env="merge_env_result" onclick="handleEnvClick(this)">合并道路</button>
+            <button data-env="racetrack_env_result" onclick="handleEnvClick(this)">赛车道路</button>
+            <p id="status" style="font-weight: bold;"></p> <!-- 显示状态信息 -->
+            <div class="media-wrapper">
+                <div id="media-container">
+                    <img id="picture" src="Auto_Driving.jpg" alt="Image">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>请输入数据：</label></p>
+                <label for="car_num">车辆数：</label>
+                <input type="text" id="car_num">
+                <p></p>
+                <button onclick="start_practice()">开始训练</button>
+                <button onclick="result()">生成结果</button>
+            </div>
+            </p>
+            <!-- 日志 -->
+            <div class="input-group-line">
+                <label>训练过程日志</label></p>
+                <textarea id="logOutput" rows="10" cols="60" readonly
+                    style="resize: none; overflow-y: scroll;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        let selectedEnv = null; // 用于存储当前选择的仿真环境
+
+        function handleEnvClick(button) {
+            const buttonText = button.textContent;
+            selectedEnv = button.getAttribute("data-env");
+            const statusElement = document.getElementById("status");
+            statusElement.textContent = `当前选择的仿真环境：${buttonText}`;
+        }
+
+        function start_practice() {
+            const carNum = document.getElementById("car_num").value;
+            if (!selectedEnv) {
+                alert("请先选择仿真环境！");
+                return;
+            }
+            if (!carNum) {
+                alert("请输入车辆数！");
+                return;
+            }
+            const data = {
+                env: selectedEnv,
+                car_num: carNum,
+            };
+            sendDataToBackend(data);
+        }
+
+        function sendDataToBackend(data) {
+            fetch("/your-backend-endpoint", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("后端返回的数据：", data);
+                })
+                .catch((error) => {
+                    console.error("发送信息失败：", error);
+                });
+        }
+        function result() {
+    // 模拟从后端获取视频地址
+    fetch('/get-video-url') // 替换为你的后端API地址
+        .then(response => response.json())
+        .then(data => {
+            const videoUrl = data.url; // 假设后端返回的数据格式为 { url: "video.mp4" }
+
+            // 获取容器和图片元素
+            const container = document.getElementById('media-container');
+            const picture = document.getElementById('picture');
+
+            // 创建视频元素
+            const video = document.createElement('video');
+            video.src = videoUrl;
+            video.controls = true; // 添加控制条
+            video.style.width = '100%';
+            video.style.height = '100%';
+
+            // 移除图片，添加视频
+            container.removeChild(picture);
+            container.appendChild(video);
+        })
+        .catch(error => {
+            console.error('Error fetching video:', error);
+        });
+}
+    </script>
+</body>
+
+</html>

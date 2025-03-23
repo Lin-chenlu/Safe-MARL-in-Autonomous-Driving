@@ -30,6 +30,7 @@ class MergeEnv(AbstractEnv):
             "merging_speed_reward": -0.5,
             "lane_change_reward": -0.05,
             "on_road_reward": 1,
+            "duration": 40,  # [s]
         })
         return cfg
 
@@ -136,8 +137,8 @@ class MergeEnv(AbstractEnv):
         terminated = [leader_terminated, follower_terminated]
 
         # reward
-        leader_reward = self.leader_agend_reward(self.controlled_vehicles[0], action[0])
-        follower_reward = self.follower_agend_reward(self.controlled_vehicles[1], action[1])   
+        leader_reward = self.leader_agend_reward(self.controlled_vehicles[0], action)
+        follower_reward = self.follower_agend_reward(self.controlled_vehicles[1], action)   
         reward = [leader_reward, follower_reward]       
 
         # info

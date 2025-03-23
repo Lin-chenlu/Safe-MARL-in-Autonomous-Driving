@@ -33,6 +33,7 @@ class AbstractEnv(gym.Env):
     _record_video_wrapper: Optional[RecordVideo]
     metadata = {
         'render_modes': ['human', 'rgb_array'],
+        'render_fps': 30
     }
 
     PERCEPTION_DISTANCE = 5.0 * Vehicle.MAX_SPEED
@@ -133,7 +134,8 @@ class AbstractEnv(gym.Env):
         :param action: the last action performed
         :return: the reward
         """
-        raise NotImplementedError
+        # 确保reward返回浮点数或整数
+        return float(0)
 
     def _rewards(self, action: Action) -> Dict[Text, float]:
         """
@@ -145,7 +147,8 @@ class AbstractEnv(gym.Env):
         :param action: the last action performed
         :return: a dict of {'reward_name': reward_value}
         """
-        raise NotImplementedError
+        # 确保reward返回浮点数或整数
+        return {k: float(v) for k, v in {}.items()}
 
     def _is_terminated(self) -> bool:
         """
@@ -153,7 +156,8 @@ class AbstractEnv(gym.Env):
 
         :return:is the state terminal
         """
-        raise NotImplementedError
+        # 确保terminated返回布尔值
+        return bool(False)
 
     def _is_truncated(self) -> bool:
         """
@@ -232,8 +236,8 @@ class AbstractEnv(gym.Env):
         self._simulate(action)
 
         obs = self.observation_type.observe()
-        reward = self._reward(action)
-        terminated = self._is_terminated()
+        reward = float(self._reward(action))  # 确保reward返回浮点数或整数
+        terminated = bool(self._is_terminated())  # 确保terminated返回布尔值
         truncated = self._is_truncated()
         info = self._info(obs, action)
 
@@ -277,6 +281,8 @@ class AbstractEnv(gym.Env):
         if not self.viewer.offscreen:
             self.viewer.handle_events()
         if mode == 'rgb_array':
+            if self.viewer is None:
+                self.viewer = EnvViewer(self)
             image = self.viewer.get_image()
             return image
 

@@ -140,7 +140,7 @@ class Follower:
         if np.random.uniform() < epsilon:
             u = np.random.uniform(-self.args.high_action, self.args.high_action, self.args.action_shape[self.agent_id])
         else:
-            inputs = torch.tensor(o, dtype=torch.float32)
+            inputs = o.clone().detach().float()
             leader_action = torch.tensor(leader_action, dtype=torch.float32)
             inputs = torch.cat([inputs, leader_action])
             pi = self.actor_network(inputs)
@@ -258,7 +258,7 @@ class Follower_Stochastic:
         if np.random.uniform() < epsilon:
             act = np.random.randint(self.n_action)
         else:
-            o = torch.tensor(o, dtype=torch.float32)
+            o = torch.tensor(o).clone().detach().float()
             leader_act = torch.tensor(leader_act)
             act = None
             max_q = float("-inf")

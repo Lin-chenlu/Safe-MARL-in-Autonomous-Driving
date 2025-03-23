@@ -140,7 +140,7 @@ class Leader:
         if np.random.uniform() < epsilon:
             u = np.random.uniform(-self.args.high_action, self.args.high_action, self.args.action_shape[self.agent_id])
         else:
-            inputs = torch.tensor(o, dtype=torch.float32)
+            inputs = o.clone().detach().float()
             pi = self.actor_network(inputs)
             u = pi.cpu().numpy()
             noise = noise_rate * self.args.high_action * np.random.randn(*u.shape)  # gaussian noise
@@ -257,7 +257,7 @@ class Leader_Stochastic:
         if np.random.uniform() < noise_rate:
             act = np.random.randint(self.n_action)
         else:
-            o = torch.tensor(o, dtype=torch.float32)
+            o = torch.tensor(o).clone().detach().float()
             act = None
             max_q = float("-inf")
 

@@ -47,7 +47,7 @@ class RacetrackEnv(AbstractEnv):
             "lane_centering_cost": 4,
             "lane_centering_reward": 1,
             "action_reward": -0.3,
-            "controlled_vehicles": 1,
+            "controlled_vehicles": 2,
             "other_vehicles": 1,
             "screen_width": 600,
             "screen_height": 600,
@@ -65,22 +65,22 @@ class RacetrackEnv(AbstractEnv):
     def _rewards(self, action: np.ndarray) -> Dict[Text, float]:
         _, lateral = self.vehicle.lane.local_coordinates(self.vehicle.position)
         return {
-            "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
+            "lane_centering_reward": 1 / (1 + self.config["lane_centering_cost"] * lateral ** 2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": self.vehicle.crashed,
             "on_road_reward": self.vehicle.on_road,
         }
-    
+
     def leader_is_terminal(self, vehicle):
         return vehicle.crashed or (not vehicle.on_road) or self.time >= self.config["duration"]
-    
+
     def follower_is_terminal(self, vehicle):
         return vehicle.crashed or (not vehicle.on_road) or self.time >= self.config["duration"]
-    
+
     def leader_agend_reward(self, vehicle, action):
         _, lateral = vehicle.lane.local_coordinates(vehicle.position)
         rewards = {
-            "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
+            "lane_centering_reward": 1 / (1 + self.config["lane_centering_cost"] * lateral ** 2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": vehicle.crashed,
             "on_road_reward": vehicle.on_road,
@@ -89,11 +89,11 @@ class RacetrackEnv(AbstractEnv):
         reward = utils.lmap(reward, [self.config["collision_reward"], 1], [0, 1])
         reward *= rewards["on_road_reward"]
         return reward
-    
+
     def follower_agend_reward(self, vehicle, action):
         _, lateral = vehicle.lane.local_coordinates(vehicle.position)
         rewards = {
-            "lane_centering_reward": 1/(1+self.config["lane_centering_cost"]*lateral**2),
+            "lane_centering_reward": 1 / (1 + self.config["lane_centering_cost"] * lateral ** 2),
             "action_reward": np.linalg.norm(action),
             "collision_reward": vehicle.crashed,
             "on_road_reward": vehicle.on_road,
@@ -117,13 +117,17 @@ class RacetrackEnv(AbstractEnv):
         if self.road is None or self.vehicle is None:
             raise NotImplementedError("The road and vehicle must be initialized in the environment implementation")
 
+        # Bug 修复：检查 action 数组长度，确保不会越界
+        if len(action) < len(self.controlled_vehicles):
+            action = np.pad(action, (0, len(self.controlled_vehicles) - len(action)), 'constant', constant_values=0)
+
         # simulation
         self.time += 1 / self.config["policy_frequency"]
         self._simulate(action)
-        
+
         # observation
         obs = self.observation_type.observe()
-        
+
         truncated = self._is_truncated()
 
         # terminate
@@ -133,8 +137,8 @@ class RacetrackEnv(AbstractEnv):
 
         # reward
         leader_reward = self.leader_agend_reward(self.controlled_vehicles[0], action[0])
-        follower_reward = self.follower_agend_reward(self.controlled_vehicles[1], action[1])   
-        reward = [leader_reward, follower_reward]       
+        follower_reward = self.follower_agend_reward(self.controlled_vehicles[1], action[1])
+        reward = [leader_reward, follower_reward]
 
         # info
         info = self._info(obs, action)
@@ -144,8 +148,8 @@ class RacetrackEnv(AbstractEnv):
 
         # cost
         cost = np.zeros(2)
-        cost[0] += self.controlled_vehicles[0].crashed + 0.5*(not self.controlled_vehicles[0].on_road)
-        cost[1] += self.controlled_vehicles[1].crashed + 0.5*(not self.controlled_vehicles[1].on_road)
+        cost[0] += self.controlled_vehicles[0].crashed + 0.5 * (not self.controlled_vehicles[0].on_road)
+        cost[1] += self.controlled_vehicles[1].crashed + 0.5 * (not self.controlled_vehicles[1].on_road)
         info["cost"] = cost
 
         return obs, reward, terminated, truncated, info
@@ -157,12 +161,15 @@ class RacetrackEnv(AbstractEnv):
         speedlimits = [None, 10, 10, 10, 10, 10, 10, 10, 10]
 
         # Initialise First Lane
-        lane = StraightLane([42, 0], [100, 0], line_types=(LineType.CONTINUOUS, LineType.STRIPED), width=5, speed_limit=speedlimits[1])
+        lane = StraightLane([42, 0], [100, 0], line_types=(LineType.CONTINUOUS, LineType.STRIPED), width=5,
+                            speed_limit=speedlimits[1])
         self.lane = lane
 
         # Add Lanes to Road Network - Straight Section
         net.add_lane("a", "b", lane)
-        net.add_lane("a", "b", StraightLane([42, 5], [100, 5], line_types=(LineType.STRIPED, LineType.CONTINUOUS), width=5, speed_limit=speedlimits[1]))
+        net.add_lane("a", "b",
+                     StraightLane([42, 5], [100, 5], line_types=(LineType.STRIPED, LineType.CONTINUOUS), width=5,
+                                  speed_limit=speedlimits[1]))
 
         # 2 - Circular Arc #1
         center1 = [100, -20]
@@ -172,7 +179,7 @@ class RacetrackEnv(AbstractEnv):
                                   clockwise=False, line_types=(LineType.CONTINUOUS, LineType.NONE),
                                   speed_limit=speedlimits[2]))
         net.add_lane("b", "c",
-                     CircularLane(center1, radii1+5, np.deg2rad(90), np.deg2rad(-1), width=5,
+                     CircularLane(center1, radii1 + 5, np.deg2rad(90), np.deg2rad(-1), width=5,
                                   clockwise=False, line_types=(LineType.STRIPED, LineType.CONTINUOUS),
                                   speed_limit=speedlimits[2]))
 
@@ -192,7 +199,7 @@ class RacetrackEnv(AbstractEnv):
                                   clockwise=False, line_types=(LineType.CONTINUOUS, LineType.NONE),
                                   speed_limit=speedlimits[4]))
         net.add_lane("d", "e",
-                     CircularLane(center2, radii2+5, np.deg2rad(0), np.deg2rad(-181), width=5,
+                     CircularLane(center2, radii2 + 5, np.deg2rad(0), np.deg2rad(-181), width=5,
                                   clockwise=False, line_types=(LineType.STRIPED, LineType.CONTINUOUS),
                                   speed_limit=speedlimits[4]))
 
@@ -200,7 +207,7 @@ class RacetrackEnv(AbstractEnv):
         center3 = [70, -30]
         radii3 = 15
         net.add_lane("e", "f",
-                     CircularLane(center3, radii3+5, np.deg2rad(0), np.deg2rad(136), width=5,
+                     CircularLane(center3, radii3 + 5, np.deg2rad(0), np.deg2rad(136), width=5,
                                   clockwise=True, line_types=(LineType.CONTINUOUS, LineType.STRIPED),
                                   speed_limit=speedlimits[5]))
         net.add_lane("e", "f",
@@ -224,7 +231,7 @@ class RacetrackEnv(AbstractEnv):
                                   clockwise=False, line_types=(LineType.CONTINUOUS, LineType.NONE),
                                   speed_limit=speedlimits[7]))
         net.add_lane("g", "h",
-                     CircularLane(center4, radii4+5, np.deg2rad(315), np.deg2rad(165), width=5,
+                     CircularLane(center4, radii4 + 5, np.deg2rad(315), np.deg2rad(165), width=5,
                                   clockwise=False, line_types=(LineType.STRIPED, LineType.CONTINUOUS),
                                   speed_limit=speedlimits[7]))
         net.add_lane("h", "i",
@@ -232,7 +239,7 @@ class RacetrackEnv(AbstractEnv):
                                   clockwise=False, line_types=(LineType.CONTINUOUS, LineType.NONE),
                                   speed_limit=speedlimits[7]))
         net.add_lane("h", "i",
-                     CircularLane(center4, radii4+5, np.deg2rad(170), np.deg2rad(58), width=5,
+                     CircularLane(center4, radii4 + 5, np.deg2rad(170), np.deg2rad(58), width=5,
                                   clockwise=False, line_types=(LineType.STRIPED, LineType.CONTINUOUS),
                                   speed_limit=speedlimits[7]))
 
@@ -240,7 +247,7 @@ class RacetrackEnv(AbstractEnv):
         center5 = [43.2, 23.4]
         radii5 = 18.5
         net.add_lane("i", "a",
-                     CircularLane(center5, radii5+5, np.deg2rad(240), np.deg2rad(270), width=5,
+                     CircularLane(center5, radii5 + 5, np.deg2rad(240), np.deg2rad(270), width=5,
                                   clockwise=True, line_types=(LineType.CONTINUOUS, LineType.STRIPED),
                                   speed_limit=speedlimits[8]))
         net.add_lane("i", "a",
@@ -265,7 +272,7 @@ class RacetrackEnv(AbstractEnv):
             #     self.road.network.random_lane_index(rng)
             controlled_vehicle = self.action_type.vehicle_class.make_on_lane(self.road, lane_index, speed=None,
                                                                              longitudinal=35)
-                                                                            #  longitudinal=rng.uniform(20, 50))
+            #  longitudinal=rng.uniform(20, 50))
 
             self.controlled_vehicles.append(controlled_vehicle)
             self.road.vehicles.append(controlled_vehicle)

@@ -9,13 +9,9 @@ from gym.envs.registration import register
 def register_highway_envs():
     """Import the envs module so that envs register themselves."""
 
-    # exit_env.py
-    register(
-        id='exit-v0',
-        entry_point='highway_env.envs:ExitEnv',
-    )
+    
 
-    # highway_env.py
+    # highway_env.py*2
     register(
         id='highway-v0',
         entry_point='highway_env.envs:HighwayEnv',
@@ -26,7 +22,7 @@ def register_highway_envs():
         entry_point='highway_env.envs:HighwayEnvFast',
     )
 
-    # intersection_env.py
+    # intersection_env.py*1
     register(
         id='intersection-v0',
         entry_point='highway_env.envs:IntersectionEnv',
@@ -47,20 +43,20 @@ def register_highway_envs():
         entry_point='highway_env.envs:TupleMultiAgentIntersectionEnv',
     )
 
-    # lane_keeping_env.py
+    # lane_keeping_env.py车在发癫
     register(
         id='lane-keeping-v0',
         entry_point='highway_env.envs:LaneKeepingEnv',
         max_episode_steps=200
     )
 
-    # merge_env.py
+    # merge_env.py*
     register(
         id='merge-v0',
         entry_point='highway_env.envs:MergeEnv',
     )
 
-    # parking_env.py
+    # parking_env.py*
     register(
         id='parking-v0',
         entry_point='highway_env.envs:ParkingEnv',
@@ -76,26 +72,26 @@ def register_highway_envs():
         entry_point='highway_env.envs:ParkingEnvParkedVehicles'
     )
 
-    # racetrack_env.py
+    # racetrack_env.py*
     register(
         id='racetrack-v0',
         entry_point='highway_env.envs:RacetrackEnv',
     )
 
-    # roundabout_env.py
+    # roundabout_env.py*
     register(
         id='roundabout-v0',
         entry_point='highway_env.envs:RoundaboutEnv',
     )
 
-    # two_way_env.py
+    # two_way_env.py*
     register(
         id='two-way-v0',
         entry_point='highway_env.envs:TwoWayEnv',
         max_episode_steps=15
     )
 
-    # u_turn_env.py
+    # u_turn_env.py*
     register(
         id='u-turn-v0',
         entry_point='highway_env.envs:UTurnEnv'

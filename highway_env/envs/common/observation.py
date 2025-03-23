@@ -506,7 +506,7 @@ class TupleObservation(ObservationType):
 
 class ExitObservation(KinematicObservation):
 
-    """Specific to exit_env, observe the distance to the next exit lane as part of a KinematicObservation."""
+    
 
     def observe(self) -> np.ndarray:
         if not self.env.road:
