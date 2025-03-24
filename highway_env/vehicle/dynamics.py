@@ -211,10 +211,8 @@ def simulate(dt: float = 0.1) -> None:
         vehicle.step(dt)
 
     xx, uu = np.array(xx), np.array(uu)
-    plot(time, xx, uu)
-
-
-def plot(time: np.ndarray, xx: np.ndarray, uu: np.ndarray) -> None:
+    # 移除以下代码
+    import matplotlib.pyplot as plt
     pos_x, pos_y = xx[:, 0, 0], xx[:, 1, 0]
     psi_x, psi_y = np.cos(xx[:, 2, 0]), np.sin(xx[:, 2, 0])
     dir_x, dir_y = np.cos(xx[:, 2, 0] + uu[:, 0, 0]), np.sin(xx[:, 2, 0] + uu[:, 0, 0])

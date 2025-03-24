@@ -8,7 +8,7 @@ from gym.wrappers.monitoring.video_recorder import VideoRecorder
 import torch
 import os
 import numpy as np
-import matplotlib.pyplot as plt
+
 import time
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -313,7 +313,7 @@ class Runner_Bilevel:
 
     def analysis(self, agent_id):
         plt.figure()
-        plt.plot(self.reward_record[agent_id])
+        
         plt.xlabel('episodes')
         plt.ylabel('rewards')
         plt.savefig(self.save_path + '/reward_agent{}.png'.format(agent_id), format='png')
