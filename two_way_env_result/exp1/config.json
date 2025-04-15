@@ -1,0 +1,17 @@
+{
+  "action_type": "continuous",
+  "algorithm": "bilevel",
+  "batch_size": 256,
+  "evaluate": false,
+  "evaluate_episodes": 10,
+  "gamma": 0.99,
+  "lr": 0.001,
+  "max_episode_len": 200,
+  "noise_rate": 0.3,
+  "n_agents": 2,
+  "obs_shape": 8,
+  "save_interval": 1000,
+  "tau": 0.005,
+  "time_steps": 200000,
+  "version": "bilevel"
+}

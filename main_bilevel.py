@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # set train params
     # 循环遍历不同的环境路径
-    paths = ["./merge_env_result/exp1", "./roundabout_env_result/exp1", "./intersection_env_result/exp1", "./racetrack_env_result/exp1"]
+    paths = ["./two_way_env_result/exp1", "./merge_env_result/exp1", "./intersection_env_result/exp1", "./roundabout_env_result/exp1", "./racetrack_env_result/exp1", "./u_turn_env_result/exp1"]
     seed = [0, 1, 2]
     for path in paths:
         for i in seed:

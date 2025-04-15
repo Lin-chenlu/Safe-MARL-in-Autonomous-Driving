@@ -1,6 +1,6 @@
 import json
 import os
-from flask import Flask, request, jsonify
+from flask import *
 from flask_cors import CORS
 import subprocess
 import threading
@@ -34,6 +34,9 @@ def run_main_bilevel(env):
         subprocess_output.append(f"Error: {str(e)}")
         subprocess_running = False
 
+@app.route('/')
+def index():
+    return send_file('static\\index.html')
 
 @app.route('/receive_data', methods=['POST'])
 def receive_data():
