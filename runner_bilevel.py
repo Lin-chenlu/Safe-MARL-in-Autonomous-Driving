@@ -206,19 +206,18 @@ class Runner_Bilevel:
                     self.reward_record[i].append(total_reward[i])
                 # save first arrive record
                 if info is not None:
-                    if info is not None:
-                        if self.args.scenario_name == "racetrack-v0":
-                            self.crash_record.append(info["crashed"])
+                    if self.args.scenario_name == "racetrack-v0":
+                        self.crash_record.append(info["crashed"])
+                    else:
+                        if info["first_arrived"]==1:
+                            self.leader_arrive_record.append(1)
+                            self.follower_arrive_record.append(0)
+                        elif info["first_arrived"]==2:
+                            self.leader_arrive_record.append(0)
+                            self.follower_arrive_record.append(1)
                         else:
-                            if info["first_arrived"]==1:
-                                self.leader_arrive_record.append(1)
-                                self.follower_arrive_record.append(0)
-                            elif info["first_arrived"]==2:
-                                self.leader_arrive_record.append(0)
-                                self.follower_arrive_record.append(1)
-                            else:
-                                self.leader_arrive_record.append(0)
-                                self.follower_arrive_record.append(0)
+                            self.leader_arrive_record.append(0)
+                            self.follower_arrive_record.append(0)
                 # reset episode total reward
                 total_reward = [0, 0]
                 # reset
@@ -254,6 +253,9 @@ class Runner_Bilevel:
                 self.follower_agent.train(transitions, self.leader_agent)
             # plot reward
             if time_step > 0 and time_step % self.args.evaluate_rate == 0:
+                #添加训练进度输出
+                current_progress = int((time_step / self.args.time_steps) * 100)
+                print(f'PROGRESS: {current_progress}%')
                 returns.append(self.evaluate())
                 np.save(self.save_path + '/reward_record.npy', self.reward_record)
                 np.save(self.save_path + '/leader_arrive_record.npy', self.leader_arrive_record)
@@ -311,12 +313,7 @@ class Runner_Bilevel:
                 break
         video_recorder.close()
 
-    def analysis(self, agent_id):
-        plt.figure()
-        
-        plt.xlabel('episodes')
-        plt.ylabel('rewards')
-        plt.savefig(self.save_path + '/reward_agent{}.png'.format(agent_id), format='png')
+
     
 # implementation of constrained Bilevel RL algorithm for discrete action space
 class Runner_Stochastic:

@@ -12,6 +12,6 @@
   "obs_shape": 8,
   "save_interval": 1000,
   "tau": 0.005,
-  "time_steps": 200000,
-  "version": "bilevel"
+  "time_steps": 10000,
+  "version": "c_bilevel"
 }

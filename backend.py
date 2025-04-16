@@ -41,6 +41,9 @@ def index():
 @app.route('/receive_data', methods=['POST'])
 def receive_data():
     data = request.get_json()
+
+    print(f"Received data: {data}")  # 调试日志
+    
     env = data.get('env')
     car_num = data.get('car_num')
 
@@ -53,7 +56,7 @@ def receive_data():
         with open(env_config_path, 'w') as f:
             json.dump(env_config, f, indent=4)
 
-        return jsonify({'message': 'Data received successfully', 'status': 'config_updated'})
+        return jsonify({'message': 'Data received successfully', 'status': 'config_updated', 'received_data': data})
     else:
         return jsonify({'message': 'Environment config not found', 'status': 'error'}), 404
 

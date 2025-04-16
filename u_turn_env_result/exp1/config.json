@@ -1,6 +1,6 @@
 {
     "scenario_name": "u_turn_env-v0",
-    "version": "bilevel",
-    "time_steps": 8000,
+    "version": "c_bilevel",
+    "time_steps": 10000,
     "batch_size": 32
 }
