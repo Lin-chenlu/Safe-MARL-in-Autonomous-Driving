@@ -6,7 +6,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 from gym.envs.registration import register
 
 
-def register_highway_envs():
+def register_Highway_envs():
     """Import the envs module so that envs register themselves."""
 
     
@@ -14,86 +14,86 @@ def register_highway_envs():
     # highway_env.py
     register(
         id='highway-v0',
-        entry_point='highway_env.envs:HighwayEnv',
+        entry_point='Highway_env.envs:HighwayEnv',
     )
 
     register(
         id='highway-fast-v0',
-        entry_point='highway_env.envs:HighwayEnvFast',
+        entry_point='Highway_env.envs:HighwayEnvFast',
     )
 
     # intersection_env.py
     register(
         id='intersection-v0',
-        entry_point='highway_env.envs:IntersectionEnv',
+        entry_point='Highway_env.envs:IntersectionEnv',
     )
 
     register(
         id='intersection-v1',
-        entry_point='highway_env.envs:ContinuousIntersectionEnv',
+        entry_point='Highway_env.envs:ContinuousIntersectionEnv',
     )
 
     register(
         id='intersection-multi-agent-v0',
-        entry_point='highway_env.envs:MultiAgentIntersectionEnv',
+        entry_point='Highway_env.envs:MultiAgentIntersectionEnv',
     )
 
     register(
         id='intersection-multi-agent-v1',
-        entry_point='highway_env.envs:TupleMultiAgentIntersectionEnv',
+        entry_point='Highway_env.envs:TupleMultiAgentIntersectionEnv',
     )
 
     # lane_keeping_env.py
     register(
         id='lane-keeping-v0',
-        entry_point='highway_env.envs:LaneKeepingEnv',
+        entry_point='Highway_env.envs:LaneKeepingEnv',
         max_episode_steps=200
     )
 
     # merge_env.py
     register(
         id='merge-v0',
-        entry_point='highway_env.envs:MergeEnv',
+        entry_point='Highway_env.envs:MergeEnv',
     )
 
     # parking_env.py
     register(
         id='parking-v0',
-        entry_point='highway_env.envs:ParkingEnv',
+        entry_point='Highway_env.envs:ParkingEnv',
     )
 
     register(
         id='parking-ActionRepeat-v0',
-        entry_point='highway_env.envs:ParkingEnvActionRepeat'
+        entry_point='Highway_env.envs:ParkingEnvActionRepeat'
     )
 
     register(
         id='parking-parked-v0',
-        entry_point='highway_env.envs:ParkingEnvParkedVehicles'
+        entry_point='Highway_env.envs:ParkingEnvParkedVehicles'
     )
 
     # racetrack_env.py
     register(
         id='racetrack-v0',
-        entry_point='highway_env.envs:RacetrackEnv',
+        entry_point='Highway_env.envs:RacetrackEnv',
     )
 
     # roundabout_env.py
     register(
         id='roundabout-v0',
-        entry_point='highway_env.envs:RoundaboutEnv',
+        entry_point='Highway_env.envs:RoundaboutEnv',
     )
 
     # two_way_env.py
     register(
         id='two-way-v0',
-        entry_point='highway_env.envs:TwoWayEnv',
+        entry_point='Highway_env.envs:TwoWayEnv',
         max_episode_steps=15
     )
 
     # u_turn_env.py
     register(
         id='u-turn-v0',
-        entry_point='highway_env.envs:UTurnEnv'
+        entry_point='Highway_env.envs:UTurnEnv'
     )
 

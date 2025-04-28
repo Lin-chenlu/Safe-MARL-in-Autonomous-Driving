@@ -2,11 +2,11 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from highway_env.road.road import Road, Route, LaneIndex
-from highway_env.utils import Vector
-from highway_env.vehicle.controller import ControlledVehicle
-from highway_env import utils
-from highway_env.vehicle.kinematics import Vehicle
+from Highway_env.road.road import Road, Route, LaneIndex
+from Highway_env.utils import Vector
+from Highway_env.vehicle.controller import ControlledVehicle
+from Highway_env import utils
+from Highway_env.vehicle.kinematics import Vehicle
 
 
 class IDMVehicle(ControlledVehicle):

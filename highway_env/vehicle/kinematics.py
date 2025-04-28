@@ -3,10 +3,10 @@ import numpy as np
 import copy
 from collections import deque
 
-from highway_env import utils
-from highway_env.road.road import Road, LaneIndex
-from highway_env.vehicle.objects import RoadObject, Obstacle, Landmark
-from highway_env.utils import Vector
+from Highway_env import utils
+from Highway_env.road.road import Road, LaneIndex
+from Highway_env.vehicle.objects import RoadObject, Obstacle, Landmark
+from Highway_env.utils import Vector
 
 
 class Vehicle(RoadObject):

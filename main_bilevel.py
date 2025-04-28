@@ -1,6 +1,6 @@
-from runner_bilevel import Runner_Bilevel, Runner_Stochastic, Runner_C_Bilevel
+from runner_bilevel import Runner_Stochastic, Runner_C_Bilevel
 from common.arguments import get_args
-from common.utils import make_highway_env
+from common.utils import make_Highway_env
 import numpy as np
 import json
 import time
@@ -9,7 +9,7 @@ import threading; import os
 
 
 if __name__ == '__main__':
-    # 模拟进度条
+  # 模拟进度条
     app = Flask(__name__)
 
     @app.route('/get_progress', methods=['GET'])
@@ -23,54 +23,72 @@ if __name__ == '__main__':
 
     # 启动Flask应用
     threading.Thread(target=app.run, kwargs={'host': '127.0.0.1', 'port': 5000}).start()
-
-    # 原有的训练逻辑
-    # get the params
+    
+    # 保留原有训练逻辑
     args = get_args()
 
-    # set train params
     # 循环遍历不同的环境路径
-    args.file_path = "./merge_env_result/exp1"
-    # args.file_path = "./roundabout_env_result/exp1"
-    # args.file_path = "./intersection_env_result/exp1"
-    # args.file_path = "./racetrack_env_result/exp1"
-    # paths = ["./two_way_env_result/exp1", "./merge_env_result/exp1", "./intersection_env_result/exp1", "./roundabout_env_result/exp1", "./racetrack_env_result/exp1", "./u_turn_env_result/exp1"]
+    env_paths = ["./roundabout_env_result/exp1","./highway_env_result/exp1",
+        "./merge_env_result/exp1",
+        
+        "./intersection_env_result/exp1","./racetrack_env_result/exp1",
+        "./two_way_env_result/exp1",
+        "./u_turn_env_result/exp1","./roundabout_env_result/exp1"
+    ]
 
-    args.seed = np.random.randint(0, 100000)
-    args.save_dir = args.file_path + "/seed_" + str(args.seed)
-    if not os.path.exists(args.save_dir):
-            os.mkdir(args.save_dir)
-    with open(args.file_path+'/config.json','r') as f:
-            vars(args).update(json.load(f))
+    # 为每个环境路径创建独立训练流程
+    for env_path in env_paths:
+        args.file_path = env_path
+        # 生成随机种子
+        args.seed = np.random.randint(0, 100000)
+        args.save_dir = os.path.join(args.file_path, "seed_" + str(args.seed))
         
+        # 创建保存目录
+        if not os.path.exists(args.save_dir):
+            os.makedirs(args.save_dir)
+            
+        # 加载环境配置文件
+        config_path = os.path.join(args.file_path, 'config.json')
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            vars(args).update(config)
+
         # set env
-    env, eval_env, args = make_highway_env(args)
+        env, eval_env, args = make_Highway_env(args)
         
-    np.random.seed(args.seed)
+        np.random.seed(args.seed)
         
-    # choose action type and algorithm
-    if args.action_type == "continuous":
+        # choose action type and algorithm
+        if args.action_type == "continuous":
             # constrained stackelberg maddpg
-        if args.version == "c_bilevel":
+            if args.version == "c_bilevel":
                 runner = Runner_C_Bilevel(args, env, eval_env)
-    elif args.action_type == "discrete":
+        elif args.action_type == "discrete":
             # constrained stackelberg Q learning
             runner = Runner_Stochastic(args, env, eval_env)
         
         # train or evaluate
-    if args.evaluate:
+        if args.evaluate:
             returns = runner.evaluate()
             print('Average returns is', returns)
-    else:
+        else:
             runner.run()
         
         # record video
-    if args.record_video:
+        if args.record_video:
             video_path = runner.record_video()
+            print(video_path)
             # 发送视频路径到后端
             import requests
             response = requests.post('http://127.0.0.1:5000/receive_video_path', json={'video_path': video_path})
             print(response.text)
+
+        # 新增日志目录创建
+        log_dir = os.path.join(os.getcwd(), "static/training_logs")
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        log_file = open(os.path.join(log_dir, "latest.log"), "w")
+
 
         
 

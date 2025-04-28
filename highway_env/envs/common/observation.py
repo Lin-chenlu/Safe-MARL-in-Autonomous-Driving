@@ -5,16 +5,16 @@ from gym import spaces
 import numpy as np
 import pandas as pd
 
-from highway_env import utils
-from highway_env.envs.common.finite_mdp import compute_ttc_grid
-from highway_env.envs.common.graphics import EnvViewer
-from highway_env.road.lane import AbstractLane
-from highway_env.utils import distance_to_circle, Vector
-from highway_env.vehicle.controller import MDPVehicle
-from highway_env.vehicle.kinematics import Vehicle
+from Highway_env import utils
+from Highway_env.envs.common.finite_mdp import compute_ttc_grid
+from Highway_env.envs.common.graphics import EnvViewer
+from Highway_env.road.lane import AbstractLane
+from Highway_env.utils import distance_to_circle, Vector
+from Highway_env.vehicle.controller import MDPVehicle
+from Highway_env.vehicle.kinematics import Vehicle
 
 if TYPE_CHECKING:
-    from highway_env.envs.common.abstract import AbstractEnv
+    from Highway_env.envs.common.abstract import AbstractEnv
 
 
 class ObservationType(object):

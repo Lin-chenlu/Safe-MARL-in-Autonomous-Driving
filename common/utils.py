@@ -1,10 +1,10 @@
 import numpy as np
 import gym
 import json
-import highway_env
-highway_env.register_highway_envs()
+import Highway_env
+Highway_env.register_Highway_envs()
 
-def make_highway_env(args):
+def make_Highway_env(args):
     env = gym.make(args.scenario_name, render_mode='rgb_array')
     eval_env = gym.make(args.scenario_name, render_mode='rgb_array')
 

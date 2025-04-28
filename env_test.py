@@ -1,10 +1,10 @@
 import gym
 
-import highway_env
+import Highway_env
 
 import json
 
-highway_env.register_highway_envs()
+Highway_env.register_Highway_envs()
 env = gym.make("highway-v0")
 # # env.configure({
 # #   "manual_control": True,

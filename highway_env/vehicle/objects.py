@@ -2,11 +2,11 @@ from abc import ABC
 from typing import Sequence, Tuple, TYPE_CHECKING, Optional
 import numpy as np
 
-from highway_env import utils
+from Highway_env import utils
 
 if TYPE_CHECKING:
-    from highway_env.road.lane import AbstractLane
-    from highway_env.road.road import Road
+    from Highway_env.road.lane import AbstractLane
+    from Highway_env.road.road import Road
 
 LaneIndex = Tuple[str, str, int]
 

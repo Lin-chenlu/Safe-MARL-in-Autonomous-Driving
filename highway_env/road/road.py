@@ -2,11 +2,11 @@ import numpy as np
 import logging
 from typing import List, Tuple, Dict, TYPE_CHECKING, Optional
 
-from highway_env.road.lane import LineType, StraightLane, AbstractLane, lane_from_config
-from highway_env.vehicle.objects import Landmark
+from Highway_env.road.lane import LineType, StraightLane, AbstractLane, lane_from_config
+from Highway_env.vehicle.objects import Landmark
 
 if TYPE_CHECKING:
-    from highway_env.vehicle import kinematics, objects
+    from Highway_env.vehicle import kinematics, objects
 
 logger = logging.getLogger(__name__)
 

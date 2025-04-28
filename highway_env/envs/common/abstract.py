@@ -7,14 +7,14 @@ from gym.wrappers import RecordVideo
 from gym.utils import seeding
 import numpy as np
 
-from highway_env import utils
-from highway_env.envs.common.action import action_factory, Action, DiscreteMetaAction, ActionType
-from highway_env.envs.common.observation import observation_factory, ObservationType
-from highway_env.envs.common.finite_mdp import finite_mdp
-from highway_env.envs.common.graphics import EnvViewer
-from highway_env.vehicle.behavior import IDMVehicle, LinearVehicle
-from highway_env.vehicle.controller import MDPVehicle
-from highway_env.vehicle.kinematics import Vehicle
+from Highway_env import utils
+from Highway_env.envs.common.action import action_factory, Action, DiscreteMetaAction, ActionType
+from Highway_env.envs.common.observation import observation_factory, ObservationType
+from Highway_env.envs.common.finite_mdp import finite_mdp
+from Highway_env.envs.common.graphics import EnvViewer
+from Highway_env.vehicle.behavior import IDMVehicle, LinearVehicle
+from Highway_env.vehicle.controller import MDPVehicle
+from Highway_env.vehicle.kinematics import Vehicle
 
 Observation = TypeVar("Observation")
 

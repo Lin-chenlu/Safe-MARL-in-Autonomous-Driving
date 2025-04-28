@@ -2,12 +2,12 @@ from typing import Dict, Text, Tuple
 
 import numpy as np
 
-from highway_env import utils
-from highway_env.envs.common.abstract import AbstractEnv
-from highway_env.road.lane import LineType, StraightLane, SineLane
-from highway_env.road.road import Road, RoadNetwork
-from highway_env.vehicle.controller import ControlledVehicle
-from highway_env.vehicle.objects import Obstacle
+from Highway_env import utils
+from Highway_env.envs.common.abstract import AbstractEnv
+from Highway_env.road.lane import LineType, StraightLane, SineLane
+from Highway_env.road.road import Road, RoadNetwork
+from Highway_env.vehicle.controller import ControlledVehicle
+from Highway_env.vehicle.objects import Obstacle
 
 
 class MergeEnv(AbstractEnv):
@@ -53,7 +53,7 @@ class MergeEnv(AbstractEnv):
         return {
             "collision_reward": self.vehicle.crashed,
             "right_lane_reward": self.vehicle.lane_index[2] / 1,
-            "high_speed_reward": self.vehicle.speed_index / (self.vehicle.target_speeds.size - 1),
+            "high_speed_reward": MDPVehicle.get_speed_index(self.vehicle) / (self.vehicle.target_speeds.size - 1),
             "lane_change_reward": action in [0, 2],
             "merging_speed_reward": sum(  # Altruistic penalty
                 (vehicle.target_speed - vehicle.speed) / vehicle.target_speed

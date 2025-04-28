@@ -3,11 +3,11 @@ from typing import Dict, Text
 import numpy as np
 
 
-from highway_env import utils
-from highway_env.envs.common.abstract import AbstractEnv
-from highway_env.road.lane import LineType, StraightLane, CircularLane
-from highway_env.road.road import Road, RoadNetwork
-from highway_env.vehicle.controller import MDPVehicle
+from Highway_env import utils
+from Highway_env.envs.common.abstract import AbstractEnv
+from Highway_env.road.lane import LineType, StraightLane, CircularLane
+from Highway_env.road.road import Road, RoadNetwork
+from Highway_env.vehicle.controller import MDPVehicle
 
 
 class UTurnEnv(AbstractEnv):

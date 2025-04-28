@@ -2,13 +2,13 @@ from typing import Dict, Tuple, Text
 
 import numpy as np
 
-from highway_env import utils
-from highway_env.envs.common.abstract import AbstractEnv, MultiAgentWrapper
-from highway_env.road.lane import LineType, StraightLane, CircularLane, AbstractLane
-from highway_env.road.regulation import RegulatedRoad
-from highway_env.road.road import RoadNetwork
-from highway_env.vehicle.kinematics import Vehicle
-from highway_env.vehicle.controller import ControlledVehicle
+from Highway_env import utils
+from Highway_env.envs.common.abstract import AbstractEnv, MultiAgentWrapper
+from Highway_env.road.lane import LineType, StraightLane, CircularLane, AbstractLane
+from Highway_env.road.regulation import RegulatedRoad
+from Highway_env.road.road import RoadNetwork
+from Highway_env.vehicle.kinematics import Vehicle
+from Highway_env.vehicle.controller import ControlledVehicle
 
 
 class IntersectionEnv(AbstractEnv):

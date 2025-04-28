@@ -3,9 +3,9 @@ from copy import deepcopy
 from typing import Tuple, List, Optional, Union
 import numpy as np
 
-from highway_env import utils
-from highway_env.road.spline import LinearSpline2D
-from highway_env.utils import wrap_to_pi, Vector, get_class_path, class_from_path
+from Highway_env import utils
+from Highway_env.road.spline import LinearSpline2D
+from Highway_env.utils import wrap_to_pi, Vector, get_class_path, class_from_path
 
 
 class AbstractLane(object):
