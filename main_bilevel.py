@@ -28,12 +28,13 @@ if __name__ == '__main__':
     args = get_args()
 
     # 循环遍历不同的环境路径
-    env_paths = ["./roundabout_env_result/exp1","./highway_env_result/exp1",
+    env_paths = ["./highway_env_result/exp1",
         "./merge_env_result/exp1",
         
         "./intersection_env_result/exp1","./racetrack_env_result/exp1",
         "./two_way_env_result/exp1",
-        "./u_turn_env_result/exp1","./roundabout_env_result/exp1"
+        "./u_turn_env_result/exp1",
+        "./roundabout_env_result/exp1"
     ]
 
     # 为每个环境路径创建独立训练流程
@@ -61,8 +62,7 @@ if __name__ == '__main__':
         # choose action type and algorithm
         if args.action_type == "continuous":
             # constrained stackelberg maddpg
-            if args.version == "c_bilevel":
-                runner = Runner_C_Bilevel(args, env, eval_env)
+            runner = Runner_C_Bilevel(args, env, eval_env)
         elif args.action_type == "discrete":
             # constrained stackelberg Q learning
             runner = Runner_Stochastic(args, env, eval_env)
