@@ -1,6 +1,7 @@
 {
     "scenario_name" : "racetrack-v0",
     "action_type":"continuous",
+    "enable_cost": true,
     "lagrangian_multiplier" : 0,
     "lagrangian_max_bound" : 100,
     "cost_threshold" : 1,

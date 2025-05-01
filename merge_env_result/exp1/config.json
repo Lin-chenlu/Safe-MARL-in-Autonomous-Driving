@@ -1,6 +1,7 @@
 {
     "scenario_name" : "merge-v0",
     "action_type": "discrete",
+    "enable_cost": true,
     "cost_threshold" : 5,
     "min_noise_rate" : 0,
     "min_epsilon" : 0,

@@ -1,4 +1,6 @@
 {
+    "enable_cost": true,
+    "cost_threshold": 1,
     "action": {
         "action_config": {
             "type": "ContinuousAction",
