@@ -31,5 +31,5 @@
     "render_mode": "rgb_array",
     "screen_height": 500,
     "screen_width": 1500,
-    "vehicles_count": "2"
+    "vehicles_count": 2
 }

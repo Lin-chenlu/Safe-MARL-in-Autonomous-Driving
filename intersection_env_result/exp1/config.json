@@ -1,6 +1,6 @@
 {
     "scenario_name" : "intersection-v1",
-    "version" : "c_bilevel",
+    "action_type":"continuous",
     "lagrangian_multiplier" : 0,
     "lagrangian_max_bound" : 100,
     "cost_threshold" : 5,

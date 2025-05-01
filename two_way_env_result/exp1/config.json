@@ -1,6 +1,5 @@
 {
   "action_type": "continuous",
-  "algorithm": "bilevel",
   "batch_size": 256,
   "evaluate": false,
   "evaluate_episodes": 10,
@@ -12,6 +11,5 @@
   "obs_shape": 8,
   "save_interval": 1000,
   "tau": 0.005,
-  "time_steps": 10000,
-  "version": "c_bilevel"
+  "time_steps": 10000
 }
