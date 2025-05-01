@@ -146,6 +146,11 @@ class ContinuousAction(ActionType):
                 "acceleration": 0,
                 "steering": utils.lmap(action[0], [-1, 1], self.steering_range)
             })
+        else:
+            self.controlled_vehicle.act({
+                "acceleration": 0,
+                "steering": 0
+            })
         self.last_action = action
 
 

@@ -1,7 +1,10 @@
 {
     "action": {
         "action_config": {
-            "type": "ContinuousAction"
+            "type": "ContinuousAction",
+            "longitudinal": true,
+            "lateral": true,
+            "steering_range": [-1.0, 1.0]
         },
         "type": "MultiAgentAction"
     },
