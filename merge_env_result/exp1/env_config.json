@@ -15,7 +15,7 @@
   "action": {
     "type": "MultiAgentAction",
         "action_config": {
-            "type": "ContinuousAction"
+            "type": "DiscreteMetaAction"
         }
   }
 }

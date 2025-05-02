@@ -6,7 +6,7 @@ from Highway_env import utils
 from Highway_env.envs.common.abstract import AbstractEnv
 from Highway_env.road.lane import LineType, StraightLane, SineLane
 from Highway_env.road.road import Road, RoadNetwork
-from Highway_env.vehicle.controller import ControlledVehicle
+from Highway_env.vehicle.controller import ControlledVehicle, MDPVehicle
 from Highway_env.vehicle.objects import Obstacle
 
 
@@ -53,7 +53,7 @@ class MergeEnv(AbstractEnv):
         return {
             "collision_reward": self.vehicle.crashed,
             "right_lane_reward": self.vehicle.lane_index[2] / 1,
-            "high_speed_reward": MDPVehicle.get_speed_index(self.vehicle) / (self.vehicle.target_speeds.size - 1),
+            "high_speed_reward": MDPVehicle.get_speed_index(self.vehicle) / (MDPVehicle.DEFAULT_TARGET_SPEEDS.size - 1),
             "lane_change_reward": action in [0, 2],
             "merging_speed_reward": sum(  # Altruistic penalty
                 (vehicle.target_speed - vehicle.speed) / vehicle.target_speed
@@ -118,13 +118,17 @@ class MergeEnv(AbstractEnv):
         self._make_road()
         self._make_vehicles()
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
+    def step(self, action: Tuple[int, int]) -> Tuple[np.ndarray, float, bool, bool, dict]:
         if self.road is None or self.vehicle is None:
             raise NotImplementedError("The road and vehicle must be initialized in the environment implementation")
 
         # simulation
         self.time += 1 / self.config["policy_frequency"]
-        self._simulate(action)
+        if not isinstance(action, tuple):
+            action = tuple(action)
+        leader_action, follower_action = action
+        leader_action = tuple([leader_action]) if not isinstance(leader_action, tuple) else leader_action
+        self._simulate(leader_action)
         
         # observation
         obs = self.observation_type.observe()
