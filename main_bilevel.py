@@ -28,13 +28,14 @@ if __name__ == '__main__':
     args = get_args()
 
     # 循环遍历不同的环境路径
-    env_paths = ["./highway_env_result/exp1",
-        "./merge_env_result/exp1",
-        
-        "./intersection_env_result/exp1","./racetrack_env_result/exp1",
+    env_paths = ["./u_turn_env_result/exp1",
         "./two_way_env_result/exp1",
-        "./u_turn_env_result/exp1",
-        "./roundabout_env_result/exp1"
+        
+        "./merge_env_result/exp1",
+        "./roundabout_env_result/exp1",
+        "./highway_env_result/exp1",
+        "./racetrack_env_result/exp1",
+        "./intersection_env_result/exp1",
     ]
 
     # 为每个环境路径创建独立训练流程
@@ -79,8 +80,8 @@ if __name__ == '__main__':
             video_path = runner.record_video()
             print(video_path)
             # 发送视频路径到后端
-            import requests
-            response = requests.post('http://127.0.0.1:5000/receive_video_path', json={'video_path': video_path})
+            
+            response = request.post('http://127.0.0.1:5000/receive_video_path', json={'video_path': video_path})
             print(response.text)
 
         # 新增日志目录创建

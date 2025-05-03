@@ -1,27 +1,47 @@
 {
-  "env_name": "u_turn_env-v0",
-  "observation": {
-    "type": "Kinematics",
-    "features": ["presence", "x", "y", "vx", "vy"],
-    "vehicles_count": 5,
-    "features_range": {
-      "x": [-100, 100],
-      "y": [-100, 100],
-      "vx": [-20, 20],
-      "vy": [-20, 20]
+    "duration": 20,
+    "observation": {
+        "type": "MultiAgentObservation",
+        "observation_config": {
+            "type": "Kinematics",
+            "flatten": true,
+            "absolute": true,
+            "see_behind": true,
+            "normalize": false,
+            "features": [
+                "x",
+                "y",
+                "vx",
+                "vy"
+            ],
+            "vehicles_count": 2,
+            "features_range": {
+                "x": [-100, 100],
+                "y": [-100, 100],
+                "vx": [-20, 20],
+                "vy": [-20, 20]
+            }
+        }
+    },
+    "action": {
+        "type": "MultiAgentAction",
+        "action_config": {
+            "type": "DiscreteMetaAction",
+            "target_speeds": [
+                0,
+                4,
+                8,
+                12,
+                16
+            ]
+        }
+    },
+    "vehicles_count": 2,
+    "collision_reward": -5,
+    "right_lane_reward": 0.1,
+    "high_speed_reward": 0.4,
+    "constraints": {
+        "safe_distance": 2.5,
+        "max_lateral_acceleration": 5
     }
-  },
-  "action": {
-    "type": "ContinuousAction",
-    "longitudinal": true,
-    "lateral": true
-  },
-  "duration": 40,
-  "collision_reward": -5,
-  "right_lane_reward": 0.1,
-  "high_speed_reward": 0.4,
-  "constraints": {
-    "safe_distance": 2.5,
-    "max_lateral_acceleration": 5
-  }
 }

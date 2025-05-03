@@ -1,12 +1,15 @@
-from typing import Dict, Text
+from typing import Dict, Text,Tuple
 
 import numpy as np
 
 from Highway_env import utils
 from Highway_env.envs.common.abstract import AbstractEnv
+from Highway_env.envs.common.action import Action
 from Highway_env.road.lane import LineType, StraightLane
 from Highway_env.road.road import Road, RoadNetwork
-from Highway_env.vehicle.controller import MDPVehicle
+from Highway_env.utils import near_split
+from Highway_env.vehicle.controller import ControlledVehicle,MDPVehicle
+from Highway_env.vehicle.kinematics import Vehicle
 
 
 class TwoWayEnv(AbstractEnv):
@@ -25,7 +28,7 @@ class TwoWayEnv(AbstractEnv):
         config = super().default_config()
         config.update({
             "observation": {
-                "type": "TimeToCollision",
+                "type": "Kinematics",
                 "horizon": 5
             },
             "action": {
@@ -38,27 +41,79 @@ class TwoWayEnv(AbstractEnv):
         })
         return config
 
-    def _reward(self, action: int) -> float:
+    def _reward(self, action: int, vehicle: Vehicle) -> float:
         """
         The vehicle is rewarded for driving with high speed
         :param action: the action performed
+        :param vehicle: the vehicle to compute reward for
         :return: the reward of the state-action transition
         """
-        return sum(self.config.get(name, 0) * reward for name, reward in self._rewards(action).items())
+        rewards = self._rewards(action)
+        reward = sum(self.config.get(name, 0) * reward for name, reward in rewards.items())
+        if self.config.get("normalize_reward", False):
+            reward = utils.lmap(reward,
+                                [self.config["collision_reward"],
+                                 self.config["high_speed_reward"] + self.config["left_lane_reward"]],
+                                [0, 1])
+        reward *= rewards['on_road_reward']
+        return reward
 
     def _rewards(self, action: int) -> Dict[Text, float]:
         neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
+        lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
+            else self.vehicle.lane_index[2]
+        # Use forward speed rather than speed, see https://github.com/eleurent/highway-env/issues/268
+        forward_speed = self.vehicle.speed * np.cos(self.vehicle.heading)
+        scaled_speed = utils.lmap(forward_speed, self.config["reward_speed_range"], [0, 1])
         return {
-            "high_speed_reward": self.vehicle.speed_index / (self.vehicle.target_speeds.size - 1),
-            "left_lane_reward": (len(neighbours) - 1 - self.vehicle.target_lane_index[2]) / (len(neighbours) - 1),
+            "collision_reward": float(self.vehicle.crashed),
+            "left_lane_reward": lane / max(len(neighbours) - 1, 1),
+            "high_speed_reward": np.clip(scaled_speed, 0, 1),
+            "on_road_reward": float(self.vehicle.on_road)
         }
 
-    def _is_terminated(self) -> bool:
+    def _is_terminated(self, vehicle=None) -> bool:
         """The episode is over if the ego vehicle crashed or the time is out."""
-        return self.vehicle.crashed
+        vehicle = vehicle if vehicle is not None else self.vehicle
+        return (vehicle.crashed or
+                self.config.get("offroad_terminal", False) and not vehicle.on_road or
+                self.time >= self.config["duration"])
 
     def _is_truncated(self) -> bool:
         return False
+        
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
+        if self.road is None or self.vehicle is None:
+            raise NotImplementedError("The road and vehicle must be initialized in the environment implementation")
+
+        # simulation
+        self.time += 1 / self.config["policy_frequency"]
+        self._simulate(action)
+
+        # observation
+        obs = self.observation_type.observe()
+
+        truncated = self._is_truncated()
+
+        # terminate
+        terminated = [self._is_terminated(vehicle) for vehicle in self.controlled_vehicles]
+
+        # reward
+        reward = [self._reward(action, vehicle) for vehicle in self.controlled_vehicles]
+
+        # info
+        info = self._info(obs, action)
+        info["leader_arrived"] = False
+        info["follower_arrived"] = False
+        info["crash"] = any(vehicle.crashed for vehicle in self.controlled_vehicles)
+        
+        # cost
+        cost = np.zeros(len(self.controlled_vehicles))
+        for i, vehicle in enumerate(self.controlled_vehicles):
+            cost[i] += 5 * vehicle.crashed
+        info["cost"] = cost
+
+        return obs, reward, terminated, truncated, info
 
     def _reset(self) -> np.ndarray:
         self._make_road()

@@ -1,5 +1,5 @@
 {
-    "scenario_name" : "intersection-v1",
+    "scenario_name" : "intersection-v0",
     "action_type":"continuous",
     "enable_cost": true,
     "lagrangian_multiplier" : 0,

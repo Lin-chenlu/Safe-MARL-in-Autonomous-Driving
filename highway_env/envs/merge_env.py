@@ -24,6 +24,9 @@ class MergeEnv(AbstractEnv):
     def default_config(cls) -> dict:
         cfg = super().default_config()
         cfg.update({
+            "action": {
+                "type": "DiscreteMetaAction",
+            },
             "collision_reward": -1,
             "right_lane_reward": 0.1,
             "high_speed_reward": 0.2,

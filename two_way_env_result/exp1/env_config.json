@@ -1,14 +1,28 @@
 {
   "scenario_name": "two-way-v0",
-  "vehicles_count": 5,
+  "controlled_vehicles": 2,
+  "vehicles_count": 3,
   "observation": {
-    "type": "Kinematics",
-    "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
-    "absolute": true
-  },
+        "type": "MultiAgentObservation",
+            "observation_config": {
+            "type": "Kinematics",
+            "flatten": true,
+            "absolute": true,
+            "see_behind": true,
+            "normalize": false,
+            "features": ["x", "y", "vx", "vy"],
+            "vehicles_count": 5
+            }
+    },
   "policy_frequency": 5,
   "duration": 40,
   "collision_reward": -1,
   "high_speed_reward": 0.4,
-  "right_lane_reward": 0.1
+  "right_lane_reward": 0.1,
+  "action": {
+        "type": "MultiAgentAction",
+        "action_config": {
+            "type": "DiscreteMetaAction"
+    }
+  }
 }

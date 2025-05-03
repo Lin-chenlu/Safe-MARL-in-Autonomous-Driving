@@ -1,8 +1,10 @@
 {
-    "scenario_name": "u_turn_env-v0",
-    "action_type":"continuous",
+    "scenario_name": "u-turn-v0",
     "enable_cost": true,
+    "action_type": "discrete",
     "cost_threshold": 5,
-    "time_steps": 10000,
-    "batch_size": 32
+    "min_noise_rate": 0,
+    "min_epsilon": 0,
+    "batch_size": 64,
+    "time_steps": 100
 }

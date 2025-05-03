@@ -1,4 +1,4 @@
-from typing import Dict, Text
+from typing import Tuple, Dict, Text
 
 import numpy as np
 
@@ -22,55 +22,119 @@ class UTurnEnv(AbstractEnv):
         config = super().default_config()
         config.update({
             "observation": {
-                "type": "TimeToCollision",
-                "horizon": 16
+                "type": "Kinematics",
+                "absolute": True,
+                "features_range": {"x": [-100, 100], "y": [-100, 100], "vx": [-15, 15], "vy": [-15, 15]},
             },
             "action": {
                 "type": "DiscreteMetaAction",
-                "target_speeds": [8, 16, 24]
+                "target_speeds": [0, 8, 16]
             },
-            "screen_width": 789,
-            "screen_height": 289,
-            "duration": 10,
-            "collision_reward": -1.0,  # Penalization received for vehicle collision.
-            "left_lane_reward": 0.1,  # Reward received for maintaining left most lane.
-            "high_speed_reward": 0.4,  # Reward received for maintaining cruising speed.
-            "reward_speed_range": [8, 24],
-            "normalize_reward": True,
-            "offroad_terminal": False
+            "screen_width": 600,
+            "screen_height": 600,
+            "centering_position": [0.5, 0.6],
+            "duration": 40,
+            "collision_reward": -1,
+            "high_speed_reward": 0.4,
+            "right_lane_reward": 0.1,
+            "normalize_reward": True
         })
         return config
 
     def _reward(self, action: int) -> float:
-        """
-        The vehicle is rewarded for driving with high speed and collision avoidance.
-        :param action: the action performed
-        :return: the reward of the state-action transition
-        """
         rewards = self._rewards(action)
         reward = sum(self.config.get(name, 0) * reward for name, reward in rewards.items())
         if self.config["normalize_reward"]:
-            reward = utils.lmap(reward, [self.config["collision_reward"],
-                                         self.config["high_speed_reward"] + self.config["left_lane_reward"]], [0, 1])
+            reward = utils.lmap(reward, [self.config["collision_reward"], self.config["high_speed_reward"]], [0, 1])
         reward *= rewards["on_road_reward"]
         return reward
 
     def _rewards(self, action: int) -> Dict[Text, float]:
-        neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
-        lane = self.vehicle.lane_index[2]
-        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
         return {
             "collision_reward": self.vehicle.crashed,
-            "left_lane_reward": lane / max(len(neighbours) - 1, 1),
-            "high_speed_reward": np.clip(scaled_speed, 0, 1),
+            "high_speed_reward":
+                 MDPVehicle.get_speed_index(self.vehicle) / (MDPVehicle.DEFAULT_TARGET_SPEEDS.size - 1),
             "on_road_reward": self.vehicle.on_road
         }
+        
+    def leader_agend_reward(self, vehicle):
+        """Per-agent per-objective reward signal."""
 
-    def _is_terminated(self) -> bool:
-        return self.vehicle.crashed or self.time >= self.config["duration"]
+        reward = 0
+
+        if vehicle.crashed:
+            reward -= 5
+
+        if vehicle.speed>=10 and vehicle.speed<=15:
+            reward += 2
+        
+        if self.has_arrived_target(vehicle):
+            reward += 5
+        
+        return reward
+    
+    def follower_agend_reward(self, vehicle):
+        """Per-agent per-objective reward signal."""
+        reward = 0
+
+        if vehicle.crashed:
+            reward -= 5
+
+        if vehicle.speed>=10 and vehicle.speed<=15:
+            reward += 2
+        
+        if self.has_arrived_target(vehicle):
+            reward += 5
+        
+        return reward
+
+    def leader_is_terminal(self, vehicle) -> bool:
+        """The episode is over when a collision occurs or when the access ramp has been passed."""
+        return vehicle.crashed or self.time >= self.config["duration"]
+    
+    def follower_is_terminal(self, vehicle) -> bool:
+        """The episode is over when a collision occurs or when the access ramp has been passed."""
+        return vehicle.crashed or self.time >= self.config["duration"]
 
     def _is_truncated(self) -> bool:
         return False
+        
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
+        if self.road is None or self.vehicle is None:
+            raise NotImplementedError("The road and vehicle must be initialized in the environment implementation")
+
+        # simulation
+        self.time += 1 / self.config["policy_frequency"]
+        self._simulate(action)
+        
+        # observation
+        obs = self.observation_type.observe()
+        
+        truncated = self._is_truncated()
+
+        # terminate
+        leader_terminated = self.leader_is_terminal(self.controlled_vehicles[0])
+        follower_terminated = self.follower_is_terminal(self.controlled_vehicles[1])
+        terminated = [leader_terminated, follower_terminated]
+
+        # reward
+        leader_reward = self.leader_agend_reward(self.controlled_vehicles[0])
+        follower_reward = self.follower_agend_reward(self.controlled_vehicles[1])   
+        reward = [leader_reward, follower_reward]       
+
+        # info
+        info = self._info(obs, action)
+        info["leader_arrived"] = self.has_arrived_target(self.controlled_vehicles[0])
+        info["follower_arrived"] = self.has_arrived_target(self.controlled_vehicles[1])
+        info["crash"] = self.controlled_vehicles[0].crashed or self.controlled_vehicles[1].crashed
+
+        # cost
+        cost = np.zeros(2)
+        cost[0] += 5*self.controlled_vehicles[0].crashed
+        cost[1] += 5*self.controlled_vehicles[1].crashed
+        info["cost"] = cost
+
+        return obs, reward, terminated, truncated, info
 
     def _reset(self) -> np.ndarray:
         self._make_road()

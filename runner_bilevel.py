@@ -79,8 +79,9 @@ class Runner_C_Bilevel:
                 s = np.array(s).reshape((2, 8))
             with torch.no_grad():
                 # choose actions
-                leader_action = self.leader_agent.select_action(s[0], self.noise, self.epsilon)
-                follower_action = self.follower_agent.select_action(s[1], leader_action, self.noise, self.epsilon)
+                s_tensor = torch.from_numpy(s).float()
+                leader_action = self.leader_agent.select_action(s_tensor[0], self.noise, self.epsilon)
+                follower_action = self.follower_agent.select_action(s_tensor[1], leader_action, self.noise, self.epsilon)
 
             u = [leader_action, follower_action]
             actions = (leader_action, follower_action)
@@ -130,8 +131,9 @@ class Runner_C_Bilevel:
             for time_step in range(self.args.evaluate_episode_len):
                 self.eval_env.render()
                 with torch.no_grad():
-                    leader_action = self.leader_agent.select_action(s[0], self.noise, self.epsilon)
-                    follower_action = self.follower_agent.select_action(s[1], leader_action, self.noise, self.epsilon)
+                    s_tensor = torch.from_numpy(s).float()
+                    leader_action = self.leader_agent.select_action(s_tensor[0], self.noise, self.epsilon)
+                    follower_action = self.follower_agent.select_action(s_tensor[1], leader_action, self.noise, self.epsilon)
                 actions = tuple([leader_action, follower_action])
                 s_next, r, done, truncated_n, info = self.eval_env.step(actions)
                 s_next = np.array(s_next).reshape((2, 8))

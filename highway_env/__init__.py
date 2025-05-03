@@ -17,10 +17,6 @@ def register_Highway_envs():
         entry_point='Highway_env.envs:HighwayEnv',
     )
 
-    register(
-        id='highway-fast-v0',
-        entry_point='Highway_env.envs:HighwayEnvFast',
-    )
 
     # intersection_env.py
     register(
@@ -43,12 +39,6 @@ def register_Highway_envs():
         entry_point='Highway_env.envs:TupleMultiAgentIntersectionEnv',
     )
 
-    # lane_keeping_env.py
-    register(
-        id='lane-keeping-v0',
-        entry_point='Highway_env.envs:LaneKeepingEnv',
-        max_episode_steps=200
-    )
 
     # merge_env.py
     register(
@@ -56,21 +46,7 @@ def register_Highway_envs():
         entry_point='Highway_env.envs:MergeEnv',
     )
 
-    # parking_env.py
-    register(
-        id='parking-v0',
-        entry_point='Highway_env.envs:ParkingEnv',
-    )
 
-    register(
-        id='parking-ActionRepeat-v0',
-        entry_point='Highway_env.envs:ParkingEnvActionRepeat'
-    )
-
-    register(
-        id='parking-parked-v0',
-        entry_point='Highway_env.envs:ParkingEnvParkedVehicles'
-    )
 
     # racetrack_env.py
     register(
