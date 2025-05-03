@@ -1,4 +1,4 @@
-from typing import Dict, Text
+from typing import Dict, Text,Tuple
 
 import numpy as np
 
@@ -11,6 +11,7 @@ from Highway_env.vehicle.controller import ControlledVehicle
 from Highway_env.vehicle.kinematics import Vehicle
 
 Observation = np.ndarray
+
 
 
 class HighwayEnv(AbstractEnv):
@@ -81,7 +82,7 @@ class HighwayEnv(AbstractEnv):
                 vehicle.randomize_behavior()
                 self.road.vehicles.append(vehicle)
 
-    def _reward(self, action: Action) -> float:
+    def _reward(self, action: Action, vehicle: Vehicle) -> float:
         """
         The reward is defined to foster driving at high speed, on the rightmost lanes, and to avoid collisions.
         :param action: the last action performed
@@ -97,7 +98,7 @@ class HighwayEnv(AbstractEnv):
         reward *= rewards['on_road_reward']
         return reward
 
-    def _rewards(self, action: Action) -> Dict[Text, float]:
+    def _rewards(self, action: int) -> Dict[Text, float]:
         neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
         lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
             else self.vehicle.lane_index[2]
@@ -111,7 +112,7 @@ class HighwayEnv(AbstractEnv):
             "on_road_reward": float(self.vehicle.on_road)
         }
 
-    def _is_terminated(self) -> bool:
+    def _is_terminated(self, vehicle=None) -> bool:
         """The episode is over if the ego vehicle crashed or the time is out."""
         return (self.vehicle.crashed or
                 self.config["offroad_terminal"] and not self.vehicle.on_road or
@@ -120,29 +121,37 @@ class HighwayEnv(AbstractEnv):
     def _is_truncated(self) -> bool:
         return False
 
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
+        if self.road is None or self.vehicle is None:
+            raise NotImplementedError("The road and vehicle must be initialized in the environment implementation")
 
-class HighwayEnvFast(HighwayEnv):
-    """
-    A variant of highway-v0 with faster execution:
-        - lower simulation frequency
-        - fewer vehicles in the scene (and fewer lanes, shorter episode duration)
-        - only check collision of controlled vehicles with others
-    """
-    @classmethod
-    def default_config(cls) -> dict:
-        cfg = super().default_config()
-        cfg.update({
-            "simulation_frequency": 5,
-            "lanes_count": 3,
-            "vehicles_count": 20,
-            "duration": 30,  # [s]
-            "ego_spacing": 1.5,
-        })
-        return cfg
+        # simulation
+        self.time += 1 / self.config["policy_frequency"]
+        self._simulate(action)
 
-    def _create_vehicles(self) -> None:
-        super()._create_vehicles()
-        # Disable collision check for uncontrolled vehicles
-        for vehicle in self.road.vehicles:
-            if vehicle not in self.controlled_vehicles:
-                vehicle.check_collisions = False
+        # observation
+        obs = self.observation_type.observe()
+
+        truncated = self._is_truncated()
+
+        # terminate
+        terminated = [self._is_terminated(vehicle) for vehicle in self.controlled_vehicles]
+
+        # reward
+        reward = [self._reward(action, vehicle) for vehicle in self.controlled_vehicles]
+
+        # info
+        info = self._info(obs, action)
+        info["leader_arrived"] = False
+        info["follower_arrived"] = False
+
+        info["crash"] = any(vehicle.crashed for vehicle in self.controlled_vehicles)
+
+        # cost
+        cost = np.zeros(len(self.controlled_vehicles))
+        for i, vehicle in enumerate(self.controlled_vehicles):
+            cost[i] += 5 * vehicle.crashed
+        info["cost"] = cost
+
+        return obs, reward, terminated, truncated, info
+
